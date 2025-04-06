@@ -1,8 +1,9 @@
 "use client"
+
+import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import type { DateRange } from "react-day-picker"
-
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,16 @@ interface DateRangePickerProps {
 }
 
 export function DateRangePicker({ className, dateRange, onDateRangeChange }: DateRangePickerProps) {
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Detect screen width for responsiveness
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
@@ -46,11 +57,10 @@ export function DateRangePicker({ className, dateRange, onDateRangeChange }: Dat
             defaultMonth={dateRange?.from}
             selected={dateRange}
             onSelect={onDateRangeChange}
-            numberOfMonths={2}
+            numberOfMonths={isMobile ? 1 : 2}
           />
         </PopoverContent>
       </Popover>
     </div>
   )
 }
-
