@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Calendar, Clock, Users } from "lucide-react"
 
 export default function DashboardPage() {
   const { user, isLoading, signOut } = useAuth()
   const router = useRouter()
+  console.log(user ? user : "idk")
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -32,11 +33,40 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      
+
 
       <main className="flex-grow py-8 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+
+          <div className="mb-8">
+            <Card>
+              <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-6">
+                <div>
+                  <CardHeader>
+                    <CardTitle>Your Profile</CardTitle>
+                    <CardDescription>See what you're up to</CardDescription>
+                  </CardHeader>
+
+                  <CardContent>
+                    {user.user_metadata.full_name ?
+                      (<p className="font-bold text-3xl md:mb-4">
+                        {user.user_metadata.full_name}
+                      </p>) :
+                      (<p className="font-bold text-3xl md:mb-4">
+                        {user.user_metadata.first_name} {user.user_metadata.last_name}
+                      </p>)}
+
+                  </CardContent>
+                </div>
+
+                {/* <Card className="m-2 md:m-6  p-3 grid grid-cols-2">
+                  <DashboardStatus></DashboardStatus>
+                  <CalendarBlock></CalendarBlock>
+                </Card> */}
+              </div>
+            </Card>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card>

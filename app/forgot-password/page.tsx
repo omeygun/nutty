@@ -2,11 +2,6 @@
 import dynamic from 'next/dynamic'
 import ForgotPasswordForm from '@/components/auth/ForgotPassword'
 
-const LoginForm = dynamic(() => import('@/components/auth/login-form').then(mod => mod.default), {
-  ssr: false,
-})
-
-
 export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -15,7 +10,7 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold tracking-tight">Welcome back</h1>
           <p className="mt-2 text-center text-sm text-muted-foreground">Login to your Nutty account to continue</p>
         </div>
-        <LoginForm />
+        <ForgotPasswordForm />
       </div>
     </div>
   )

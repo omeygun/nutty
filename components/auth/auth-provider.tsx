@@ -6,28 +6,24 @@ import { createContext, useContext, useEffect, useState } from "react"
 import type { Session, User } from "@supabase/supabase-js"
 import { supabase } from "@/lib/supabase"
 
+type AuthResponse = {
+  error: any | null
+  data: any | null
+}
+
+
 type AuthContextType = {
   user: User | null
   session: Session | null
   isLoading: boolean
-  signUp: (
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-  ) => Promise<{
-    error: any | null
-    data: any | null
-  }>
-  signIn: (
-    email: string,
-    password: string,
-  ) => Promise<{
-    error: any | null
-    data: any | null
-  }>
+  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<AuthResponse>
+  signIn: (email: string, password: string) => Promise<AuthResponse>
   signOut: () => Promise<void>
+  signInOauth: () => Promise<AuthResponse>
+  resetPassword: (email: string) => Promise<AuthResponse>
 }
+
+
 
 // Create a default context value with no-op functions
 const defaultContextValue: AuthContextType = {
@@ -37,6 +33,8 @@ const defaultContextValue: AuthContextType = {
   signUp: async () => ({ error: new Error("Not implemented"), data: null }),
   signIn: async () => ({ error: new Error("Not implemented"), data: null }),
   signOut: async () => { },
+  signInOauth: async () => ({ error: new Error("Not implemented"), data: null }),
+  resetPassword:async () => ({ error: new Error("Not implemented"), data: null }),
 }
 
 const AuthContext = createContext<AuthContextType>(defaultContextValue)
@@ -83,6 +81,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  async function resetPassword(email: string) {
+    if (!supabase) {
+      return { error: new Error("Supabase client not initialized"), data: null }
+    }
+
+    return await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password`,  // redirect after they click the link
+    })
+  }
+
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
       if (!supabase) {
@@ -106,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signIn = async (email: string, password: string) => {
+    console.log(process.env.NEXT_PUBLIC_BASE_URL)
     try {
       if (!supabase) {
         return { error: new Error("Supabase client not initialized"), data: null }
@@ -114,6 +123,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return await supabase.auth.signInWithPassword({
         email,
         password,
+      })
+      // return await supabase.auth.signInWithOAuth({
+      //   provider: "google",
+      //   options: {
+      //     redirectTo: 'http://localhost:3000'
+      //   }
+
+      // })
+    } catch (error) {
+      console.error("Sign in error:", error)
+      return { error, data: null }
+    }
+  }
+
+  const signInOauth = async () => {
+    try {
+      if (!supabase) {
+        return { error: new Error("Supabase client not initialized"), data: null }
+      }
+
+      // return await supabase.auth.signInWithPassword({
+      //   email,
+      //   password,
+      // })
+      return await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: process.env.NEXT_PUBLIC_BASE_URL,
+        }
+
       })
     } catch (error) {
       console.error("Sign in error:", error)
@@ -141,6 +180,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signIn,
     signOut,
+    signInOauth,
+    resetPassword,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

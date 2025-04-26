@@ -3,8 +3,8 @@ import type { Database } from "@/types/supabase"
 import type { Friend } from "@/types/availability"
 
 // Use empty strings as fallbacks to prevent errors during build/SSR
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 // Create the Supabase client
 export const supabase = supabaseUrl && supabaseAnonKey ? createClient<Database>(supabaseUrl, supabaseAnonKey) : null
@@ -31,8 +31,6 @@ export type DateAvailability = {
   startTime: string
   endTime: string
 }
-
-
 
 export async function getUserAvailability(userId: string) {
   if (!supabase) return []
@@ -227,7 +225,7 @@ export async function findCommonFreeTime(userIds: string[]) {
     })),
   )
 
-  
+
 
   // Group by day of week
   const availabilityByDay = allAvailability.reduce(
@@ -253,22 +251,22 @@ export async function findCommonFreeTime(userIds: string[]) {
         { time: slot.endTime, type: "end", userId: slot.userId },
       ])
       .sort((a, b) => a.time.localeCompare(b.time))
-  
+
     const active = new Set<string>()
     let overlapStart: string | null = null
-  
+
     for (const point of timeline) {
       if (point.type === "start") {
         active.add(point.userId)
       } else {
         active.delete(point.userId)
       }
-  
+
       // All users are active
       if (active.size === userIds.length && !overlapStart) {
         overlapStart = point.time
       }
-  
+
       // Overlap ends
       if (active.size < userIds.length && overlapStart) {
         if (overlapStart !== point.time) {
@@ -284,9 +282,27 @@ export async function findCommonFreeTime(userIds: string[]) {
       }
     }
   })
-  
+
   // console.log(commonTimeSlots)
   return commonTimeSlots
+}
+
+export async function getAvailabilityOnDate(date: string) {
+  if (!supabase) return []
+
+  const { data, error } = await supabase
+    .from('date_availability')
+    .select("*")
+    .eq("date", date)
+
+  // console.log(data)
+
+  if (error) {
+    console.error("Error fetching friends' availability on date:", error)
+    throw error
+  }
+
+  return data
 }
 
 export async function getUserDateAvailability(userId: string) {
