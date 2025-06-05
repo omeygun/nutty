@@ -32,6 +32,22 @@ export type DateAvailability = {
   endTime: string
 }
 
+export async function getUserFromId(userId: string) {
+  if (!supabase) return null
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single()
+
+  if (error) {
+    console.error("Error finding user:", error, userId)
+    throw error
+  }
+
+  return data 
+}
+
 export async function getUserAvailability(userId: string) {
   if (!supabase) return []
   const { data, error } = await supabase
@@ -114,11 +130,13 @@ export async function getUserFriends(userId: string) {
     console.error("Error fetching friend profiles:", profilesError)
     throw profilesError
   }
+  
 
   // Map friendships to the expected format, including profile information
   const friends: Friend[] = friendships.map((friendship) => {
     const friendId = friendship.user_id === userId ? friendship.friend_id : friendship.user_id
     const profile = profiles?.find((p) => p.id === friendId)
+    console.log(profile)
 
     return {
       id: friendship.id,

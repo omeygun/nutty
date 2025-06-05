@@ -6,10 +6,21 @@ import { CommonTimeDisplay } from "@/components/availability/common-time-display
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { Clock, Users } from "lucide-react"
+import { useEffect } from "react"
+import { useAuth } from "@/components/auth/auth-provider"
 
 export default function FindTimePage() {
-  const router = useRouter()
   const [selectedFriends, setSelectedFriends] = useState<string[]>([])
+
+  const { user, isLoading: isLoadingUser, signOut } = useAuth()
+  const router = useRouter()
+  // console.log(user ? user : "idk")
+
+  useEffect(() => {
+    if (!isLoadingUser && !user) {
+      router.push("/login")
+    }
+  }, [user, isLoadingUser, router])
 
   return (
     <div className="container py-8">

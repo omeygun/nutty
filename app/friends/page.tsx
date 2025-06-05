@@ -10,15 +10,29 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getUserFriends, supabase, getPendingFriends } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, UserPlus, Check, X } from "lucide-react"
+import { Copy } from "lucide-react"
+import { useRouter } from "next/navigation";
+
 
 export default function FriendsPage() {
-  const { user } = useAuth()
   const { toast } = useToast()
   const [friends, setFriends] = useState<Friend[]>([])
   const [pendingRequests, setPendingRequests] = useState<Friend[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [email, setEmail] = useState("")
   const [isSending, setIsSending] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+
+  const { user, isLoading: isLoadingUser, signOut } = useAuth()
+  const router = useRouter()
+  // console.log(user ? user : "idk")
+
+  useEffect(() => {
+    if (!isLoadingUser && !user) {
+      router.push("/login")
+    }
+  }, [user, isLoadingUser, router])
 
   useEffect(() => {
 
@@ -52,6 +66,18 @@ export default function FriendsPage() {
 
     loadFriends()
   }, [user, toast])
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(`${baseUrl}/invitation/${user?.id}`)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000) // Reset after 2 seconds
+    } catch (err) {
+      console.error("Failed to copy:", err)
+    }
+  }
+
+
 
   const handleSendRequest = async () => {
     if (!user || !email) return
@@ -227,6 +253,13 @@ export default function FriendsPage() {
                 <span className="ml-2">Add</span>
               </Button>
             </div>
+          </CardContent>
+          <CardContent>
+            <Button onClick={handleCopy} size="sm" variant="outline">
+              <Copy className="h-4 w-4 mr-2" />
+              {copied ? "Copied!" : "Copy friend request link"}
+            </Button>
+            <CardDescription className="my-2">Or send them this link!</CardDescription>
           </CardContent>
         </Card>
 

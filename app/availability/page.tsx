@@ -13,9 +13,10 @@ import { DateAvailabilityList } from "@/components/availability/date-availabilit
 import { getUserDateAvailability, saveDateAvailability } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, CalendarDays, Clock, Save, LucideX } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function AvailabilityPage() {
-  const { user } = useAuth()
+  const { user, isLoading: isLoadingUser, signOut } = useAuth()
   const { toast } = useToast()
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [startTime, setStartTime] = useState("09:00")
@@ -23,6 +24,17 @@ export default function AvailabilityPage() {
   const [dateAvailability, setDateAvailability] = useState<DateAvailability[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const router = useRouter()
+
+  
+  // console.log(user ? user : "idk")
+
+  useEffect(() => {
+    if (!isLoadingUser && !user) {
+      router.push("/login")
+    }
+  }, [user, isLoading, router])
+
 
   useEffect(() => {
     const loadAvailability = async () => {
