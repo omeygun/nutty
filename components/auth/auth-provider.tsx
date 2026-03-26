@@ -14,6 +14,14 @@ type AuthResponse = {
 
 const GOOGLE_CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.events"
 
+function getClientOrigin() {
+  if (typeof window !== "undefined" && window.location.origin) {
+    return window.location.origin
+  }
+
+  return process.env.NEXT_PUBLIC_BASE_URL
+}
+
 type AuthContextType = {
   user: User | null
   session: Session | null
@@ -88,8 +96,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: new Error("Supabase client not initialized"), data: null }
     }
 
+    const redirectOrigin = getClientOrigin()
+
     return await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password`,  // redirect after they click the link
+      redirectTo: redirectOrigin ? `${redirectOrigin}/reset-password` : undefined,
     })
   }
 
@@ -116,7 +126,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signIn = async (email: string, password: string) => {
-    console.log(process.env.NEXT_PUBLIC_BASE_URL)
     try {
       if (!supabase) {
         return { error: new Error("Supabase client not initialized"), data: null }
@@ -145,8 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: new Error("Supabase client not initialized"), data: null }
       }
 
-      const baseUrl =
-        process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== "undefined" ? window.location.origin : undefined)
+      const baseUrl = getClientOrigin()
       const normalizedNext = normalizeNextPath(next, baseUrl)
       const consentUrl = new URL("/oauth/consent", baseUrl ?? window.location.origin)
       consentUrl.searchParams.set("next", normalizedNext)

@@ -22,7 +22,7 @@ export default function FriendsPage() {
   const [email, setEmail] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [copied, setCopied] = useState(false)
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_BASE_URL
 
   const { user, isLoading: isLoadingUser, signOut } = useAuth()
   const router = useRouter()
@@ -346,4 +346,3 @@ export default function FriendsPage() {
     </div>
   )
 }
-

@@ -27,7 +27,7 @@ export function OauthConsentClient() {
   const [hasAttemptedExchange, setHasAttemptedExchange] = useState(false)
 
   const nextPath = useMemo(() => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== "undefined" ? window.location.origin : undefined)
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_BASE_URL
     return normalizeNextPath(searchParams.get("next"), baseUrl)
   }, [searchParams])
   const code = searchParams.get("code")
