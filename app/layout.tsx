@@ -2,16 +2,8 @@ import type React from "react";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/components/auth/auth-provider";
-import { Noto_Sans_Thai } from "next/font/google";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-
-// Initialize the font
-const notoSansThai = Noto_Sans_Thai({
-  subsets: ["thai", "latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
 
 export const metadata = {
   title: "Nutty | นัดที่ - Find the Perfect Time to Meet with Friends",
@@ -28,8 +20,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-
-      <body className={`${notoSansThai.className} font-sans`}>
+      <body className="font-sans">
 
         <ThemeProvider
           attribute="class"

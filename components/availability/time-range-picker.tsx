@@ -20,9 +20,9 @@ export function TimeRangePicker({
   className,
 }: TimeRangePickerProps) {
   return (
-    <div className={cn("flex flex-col space-y-2", className)}>
+    <div className={cn("flex flex-col space-y-3", className)}>
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+        <div className="space-y-2 rounded-2xl border border-border/70 bg-background/70 p-4 shadow-sm">
           <Label htmlFor="start-time" className="flex items-center">
             <Clock className="mr-2 h-4 w-4" />
             Start Time
@@ -32,10 +32,10 @@ export function TimeRangePicker({
             type="time"
             value={startTime}
             onChange={(e) => onStartTimeChange(e.target.value)}
-            className="w-full"
+            className="h-11 w-full rounded-xl border-border/70 bg-background"
           />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 rounded-2xl border border-border/70 bg-background/70 p-4 shadow-sm">
           <Label htmlFor="end-time" className="flex items-center">
             <Clock className="mr-2 h-4 w-4" />
             End Time
@@ -45,11 +45,13 @@ export function TimeRangePicker({
             type="time"
             value={endTime}
             onChange={(e) => onEndTimeChange(e.target.value)}
-            className="w-full"
+            className="h-11 w-full rounded-xl border-border/70 bg-background"
           />
         </div>
       </div>
+      <p className="text-xs text-muted-foreground">
+        Times are stored as local scheduling windows and displayed using your selected timezone context.
+      </p>
     </div>
   )
 }
-

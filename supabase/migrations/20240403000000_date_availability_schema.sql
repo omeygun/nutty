@@ -1,6 +1,6 @@
 -- Create date_availability table
 CREATE TABLE IF NOT EXISTS public.date_availability (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   date DATE NOT NULL,
   start_time TIME NOT NULL,
@@ -34,4 +34,3 @@ CREATE POLICY "Users can update their own date availability"
 CREATE POLICY "Users can delete their own date availability"
   ON public.date_availability FOR DELETE
   USING (auth.uid() = user_id);
-

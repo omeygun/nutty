@@ -9,15 +9,12 @@ export default function Footer() {
           <p>&copy; {new Date().getFullYear()} Nutty. All rights reserved.</p>
         </div>
         <nav className="flex flex-wrap justify-center md:justify-end space-x-4">
-          {/* <Link href="/about" className="hover:underline">
-            About
+          <Link href="/terms" className="text-sm hover:underline">
+            Terms
           </Link>
-          <Link href="/privacy" className="hover:underline">
-            Privacy Policy
+          <Link href="/privacy" className="text-sm hover:underline">
+            Privacy
           </Link>
-          <Link href="/contact" className="hover:underline">
-            Contact
-          </Link> */}
         </nav>
         <div className="flex space-x-4 mt-4 md:mt-0">
           {/* <Link href="#" aria-label="Facebook">
@@ -34,4 +31,3 @@ export default function Footer() {
     </footer>
   )
 }
-

@@ -1,6 +1,6 @@
 -- Create availability table
 CREATE TABLE IF NOT EXISTS public.availability (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     day_of_week INTEGER NOT NULL, -- 0 = Sunday, 1 = Monday, etc.
     start_time TIME NOT NULL,
@@ -15,7 +15,7 @@ CREATE INDEX IF NOT EXISTS availability_user_id_idx ON public.availability(user_
 
 -- Create friends table
 CREATE TABLE IF NOT EXISTS public.friends (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     friend_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     status TEXT NOT NULL DEFAULT 'pending', -- 'pending', 'accepted', 'rejected'
@@ -93,4 +93,3 @@ CREATE POLICY "Users can update their own profile"
     ON public.profiles FOR UPDATE
     USING (auth.uid() = id)
     WITH CHECK (auth.uid() = id);
-

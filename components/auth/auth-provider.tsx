@@ -4,6 +4,7 @@ import type React from "react"
 
 import { createContext, useContext, useEffect, useState } from "react"
 import type { Session, User } from "@supabase/supabase-js"
+import { normalizeNextPath } from "@/lib/oauth"
 import { supabase } from "@/lib/supabase"
 
 type AuthResponse = {
@@ -11,6 +12,7 @@ type AuthResponse = {
   data: any | null
 }
 
+const GOOGLE_CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.events"
 
 type AuthContextType = {
   user: User | null
@@ -19,7 +21,7 @@ type AuthContextType = {
   signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<AuthResponse>
   signIn: (email: string, password: string) => Promise<AuthResponse>
   signOut: () => Promise<void>
-  signInOauth: () => Promise<AuthResponse>
+  signInOauth: (next?: string) => Promise<AuthResponse>
   resetPassword: (email: string) => Promise<AuthResponse>
 }
 
@@ -137,20 +139,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const signInOauth = async () => {
+  const signInOauth = async (next?: string) => {
     try {
       if (!supabase) {
         return { error: new Error("Supabase client not initialized"), data: null }
       }
 
-      // return await supabase.auth.signInWithPassword({
-      //   email,
-      //   password,
-      // })
+      const baseUrl =
+        process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== "undefined" ? window.location.origin : undefined)
+      const normalizedNext = normalizeNextPath(next, baseUrl)
+      const consentUrl = new URL("/oauth/consent", baseUrl ?? window.location.origin)
+      consentUrl.searchParams.set("next", normalizedNext)
+
       return await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: process.env.NEXT_PUBLIC_BASE_URL,
+          redirectTo: consentUrl.toString(),
+          scopes: GOOGLE_CALENDAR_SCOPE,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         }
 
       })
@@ -191,4 +200,3 @@ export function useAuth() {
   const context = useContext(AuthContext)
   return context
 }
-

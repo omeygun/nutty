@@ -4,9 +4,9 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { findCommonFreeTime } from "@/lib/supabase"
 import { useAuth } from "@/components/auth/auth-provider"
-import { Calendar, Clock } from "lucide-react"
-
-const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+import { Calendar, Clock, Globe } from "lucide-react"
+import { formatDateLabel, formatTimeLabel } from "@/lib/date-time"
+import { useTimezone } from "@/hooks/use-timezone"
 
 interface CommonTimeSlot {
   date: string
@@ -20,19 +20,9 @@ interface CommonTimeDisplayProps {
   selectedFriends: string[]
 }
 
-function parseAndFormatDate(input: string) {
-  const [year, month, day] = input.split("-").map(Number)
-  const date = new Date(year, month - 1, day) // Month is 0-based
-  return date.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
-}
-
 export function CommonTimeDisplay({ selectedFriends }: CommonTimeDisplayProps) {
   const { user } = useAuth()
+  const { timezone } = useTimezone()
   const [commonTimeSlots, setCommonTimeSlots] = useState<CommonTimeSlot[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -63,15 +53,6 @@ export function CommonTimeDisplay({ selectedFriends }: CommonTimeDisplayProps) {
     findCommonTime()
 
   }, [user, selectedFriends])
-
-  const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(":")
-    const hour = Number.parseInt(hours)
-    const ampm = hour >= 12 ? "PM" : "AM"
-    const hour12 = hour % 12 || 12
-    return `${hour12}:${minutes} ${ampm}`
-  }
-
   // Group time slots by day
   const slotsByDay = commonTimeSlots.reduce(
     (acc, slot) => {
@@ -87,9 +68,15 @@ export function CommonTimeDisplay({ selectedFriends }: CommonTimeDisplayProps) {
   // console.log(slotsByDay)
 
   return (
-    <Card>
+    <Card className="rounded-3xl border-border/70 bg-card/90 shadow-sm">
       <CardHeader>
-        <CardTitle>Common Free Time</CardTitle>
+        <div className="flex items-center justify-between gap-3">
+          <CardTitle>Common Free Time</CardTitle>
+          <span className="inline-flex items-center rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs text-muted-foreground">
+            <Globe className="mr-2 h-3.5 w-3.5" />
+            {timezone}
+          </span>
+        </div>
         <CardDescription>
           {selectedFriends.length === 0
             ? "Select friends to find common free time"
@@ -132,17 +119,23 @@ export function CommonTimeDisplay({ selectedFriends }: CommonTimeDisplayProps) {
                 <div key={day} className="space-y-2">
                   <h3 className="flex items-center text-lg font-medium">
                     <Calendar className="mr-2 h-5 w-5" />
-                    {/* {DAYS_OF_WEEK[Number.parseInt(day)]}  */}
-                    {parseAndFormatDate(day)}
+                    {formatDateLabel(day, timezone)}
                   </h3>
                   <div className="space-y-2">
                     {slots
-                      // .sort((a, b) => a.startTime.localeCompare(b.startTime))
                       .map((slot, index) => (
-                        <div key={index} className="flex items-center p-3 bg-muted rounded-md">
+                        <div
+                          key={index}
+                          className="flex items-center justify-between rounded-2xl border border-border/70 bg-muted/50 p-3"
+                        >
+                          <div className="flex items-center">
                           <Clock className="mr-2 h-4 w-4 text-primary" />
                           <span>
-                            {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                            {formatTimeLabel(slot.startTime)} - {formatTimeLabel(slot.endTime)}
+                          </span>
+                          </div>
+                          <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                            {timezone}
                           </span>
                         </div>
                       ))}
@@ -155,4 +148,3 @@ export function CommonTimeDisplay({ selectedFriends }: CommonTimeDisplayProps) {
     </Card>
   )
 }
-

@@ -14,9 +14,17 @@ interface DateRangePickerProps {
   className?: string
   dateRange: DateRange | undefined
   onDateRangeChange: (range: DateRange | undefined) => void
+  fromDate?: Date
+  toDate?: Date
 }
 
-export function DateRangePicker({ className, dateRange, onDateRangeChange }: DateRangePickerProps) {
+export function DateRangePicker({
+  className,
+  dateRange,
+  onDateRangeChange,
+  fromDate,
+  toDate,
+}: DateRangePickerProps) {
   const [isMobile, setIsMobile] = useState(false)
 
   // Detect screen width for responsiveness
@@ -34,7 +42,10 @@ export function DateRangePicker({ className, dateRange, onDateRangeChange }: Dat
           <Button
             id="date"
             variant={"outline"}
-            className={cn("w-full justify-start text-left font-normal", !dateRange && "text-muted-foreground")}
+            className={cn(
+              "h-12 w-full justify-start rounded-xl border-border/70 bg-background/70 text-left font-normal shadow-sm",
+              !dateRange && "text-muted-foreground"
+            )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {dateRange?.from ? (
@@ -50,7 +61,7 @@ export function DateRangePicker({ className, dateRange, onDateRangeChange }: Dat
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto rounded-2xl border-border/70 bg-popover p-2 shadow-xl" align="start">
           <Calendar
             autoFocus
             mode="range"
@@ -58,6 +69,8 @@ export function DateRangePicker({ className, dateRange, onDateRangeChange }: Dat
             selected={dateRange}
             onSelect={onDateRangeChange}
             numberOfMonths={isMobile ? 1 : 2}
+            fromDate={fromDate}
+            toDate={toDate}
           />
         </PopoverContent>
       </Popover>
